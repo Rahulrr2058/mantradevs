@@ -18,9 +18,9 @@ export function Contact() {
             </p>
             <div className="mt-8 flex flex-wrap gap-4">
               <Button variant="hero" size="xl" asChild>
-                <a href="mailto:hello@mantradevs.com">
+                <a href="mailto:mantradevs@gmail.com">
                   <Mail className="h-4 w-4" />
-                  <span>hello@mantradevs.com</span>
+                  <span>mantradevs@gmail.com</span>
                   <ArrowRight className="h-4 w-4" />
                 </a>
               </Button>

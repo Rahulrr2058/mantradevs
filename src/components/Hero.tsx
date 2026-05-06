@@ -40,10 +40,10 @@ export function Hero() {
             <Button variant="hero" size="xl" asChild>
               <a href="#contact">Start a project <ArrowRight className="h-4 w-4" /></a>
             </Button>
-            <Button variant={mantraverse ? "portal" : "neon"} size="xl" onClick={toggle}>
-              <Sparkles className="h-4 w-4" />
-              {mantraverse ? "Exit Mantraverse" : "Enter the Mantraverse"}
-            </Button>
+            {/*<Button variant={mantraverse ? "portal" : "neon"} size="xl" onClick={toggle}>*/}
+            {/*  <Sparkles className="h-4 w-4" />*/}
+            {/*  {mantraverse ? "Exit Mantraverse" : "Enter the Mantraverse"}*/}
+            {/*</Button>*/}
           </div>
 
           <div className="mt-16 flex items-center gap-8 text-sm text-muted-foreground">
