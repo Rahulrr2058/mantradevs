@@ -1,7 +1,9 @@
+import dynamic from "next/dynamic";
 import { Button } from "@/components/ui/button";
 import { useMantraverse } from "./MantraverseContext";
-import { MantraverseScene } from "./MantraverseScene";
+const MantraverseScene = dynamic(() => import("./MantraverseScene").then(mod => mod.MantraverseScene), { ssr: false });
 import { ArrowRight, Sparkles } from "lucide-react";
+
 
 export function Hero() {
   const { mantraverse, toggle } = useMantraverse();

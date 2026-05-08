@@ -1,0 +1,38 @@
+globalThis.__BUILD_MANIFEST = {
+  "pages": {
+    "/": [
+      "static/chunks/08f71g5n40cbn.js",
+      "static/chunks/0v_ah0suzg~w_.js",
+      "static/chunks/0sl3kvyh4w~uh.js",
+      "static/chunks/0aw12yv.~ynbd.js",
+      "static/chunks/turbopack-0nstk2vu7gi1a.js"
+    ],
+    "/404": [
+      "static/chunks/04vo316u77_2d.js",
+      "static/chunks/0sl3kvyh4w~uh.js",
+      "static/chunks/0v_ah0suzg~w_.js",
+      "static/chunks/turbopack-0mmqokt.d_a9r.js"
+    ],
+    "/_app": [
+      "static/chunks/0pt0f2.gfn~00.js",
+      "static/chunks/0sl3kvyh4w~uh.js",
+      "static/chunks/0v_ah0suzg~w_.js",
+      "static/chunks/0g8bm_64_ynls.css",
+      "static/chunks/turbopack-0bw_totszj08g.js"
+    ],
+    "/_error": [
+      "static/chunks/0_p5ohexpod5t.js",
+      "static/chunks/0sl3kvyh4w~uh.js",
+      "static/chunks/0v_ah0suzg~w_.js",
+      "static/chunks/turbopack-0pxcs91_6bm48.js"
+    ]
+  },
+  "devFiles": [],
+  "polyfillFiles": [],
+  "lowPriorityFiles": [
+    "static/17LQPcMlhVH0MLRT86Las/_buildManifest.js",
+    "static/17LQPcMlhVH0MLRT86Las/_ssgManifest.js",
+    "static/17LQPcMlhVH0MLRT86Las/_clientMiddlewareManifest.js"
+  ],
+  "rootMainFiles": []
+};
