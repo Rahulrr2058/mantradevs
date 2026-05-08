@@ -51,7 +51,7 @@ export function Hero() {
           <div className="mt-16 flex items-center gap-8 text-sm text-muted-foreground">
             <Stat n="20+" l="Products shipped" />
             <Stat n="6+" l="Industries served" />
-            <Stat n="∞" l="Cups of chai" />
+            <Stat n="∞" l="Cups of chiya" />
           </div>
         </div>
       </div>
