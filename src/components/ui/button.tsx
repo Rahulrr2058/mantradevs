@@ -19,7 +19,10 @@ const buttonVariants = cva(
         hero: "bg-gradient-primary text-primary-foreground shadow-glow hover:shadow-glow-violet hover:scale-[1.03] transition-all duration-300 font-semibold",
         neon: "border border-primary/60 bg-primary/10 text-primary hover:bg-primary/20 hover:shadow-glow transition-all duration-300",
         portal: "bg-gradient-to-r from-fuchsia-500 via-violet-500 to-cyan-400 text-white font-bold shadow-glow-violet hover:shadow-glow hover:scale-[1.04] transition-all duration-300 animate-pulse-glow",
+        mantra: "relative bg-background text-foreground border border-primary/20 hover:border-primary/50 shadow-elegant hover:shadow-glow transition-all duration-500 overflow-hidden before:absolute before:inset-0 before:bg-gradient-primary before:opacity-0 hover:before:opacity-10 before:transition-opacity animate-[breathe_3s_ease-in-out_infinite]",
       },
+
+
       size: {
         default: "h-9 px-4 py-2",
         sm: "h-8 rounded-md px-3 text-xs",

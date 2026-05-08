@@ -38,15 +38,25 @@ export function Hero() {
             Mantra Devs is a software studio crafting beautiful, performant products —
             from healthcare platforms to commerce experiences and AI tooling.
           </p>
-          <div className="mt-10 flex flex-wrap items-center gap-4">
-            <Button variant="hero" size="xl" asChild>
-              <a href="#contact">Start a project <ArrowRight className="h-4 w-4" /></a>
+          <div className="mt-10 flex flex-col sm:flex-row items-center gap-4">
+            <Button variant="hero" size="xl" asChild className="w-full sm:w-auto shadow-elegant hover:shadow-glow-violet group">
+              <a href="#contact" className="flex items-center gap-2">
+                Start a project 
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </a>
             </Button>
-            {/*<Button variant={mantraverse ? "portal" : "neon"} size="xl" onClick={toggle}>*/}
-            {/*  <Sparkles className="h-4 w-4" />*/}
-            {/*  {mantraverse ? "Exit Mantraverse" : "Enter the Mantraverse"}*/}
-            {/*</Button>*/}
+            <Button 
+              variant={mantraverse ? "portal" : "mantra"} 
+              size="xl" 
+              onClick={toggle}
+              className="w-full sm:w-auto min-w-[240px] group"
+            >
+              <Sparkles className={`h-4 w-4 transition-all ${mantraverse ? "animate-spin text-white" : "text-primary group-hover:rotate-12"}`} />
+              {mantraverse ? "Exit the Mantraverse" : "Enter the Mantraverse"}
+            </Button>
           </div>
+
+
 
           <div className="mt-16 flex items-center gap-8 text-sm text-muted-foreground">
             <Stat n="20+" l="Products shipped" />

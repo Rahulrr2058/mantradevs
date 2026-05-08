@@ -16,15 +16,16 @@ export function Contact() {
             <p className="mt-4 text-muted-foreground max-w-xl text-lg">
               Tell us about your product. We'll reply within 24 hours with a few sharp questions and a plan.
             </p>
-            <div className="mt-8 flex flex-wrap gap-4">
-              <Button variant="hero" size="xl" asChild>
-                <a href="mailto:mantradevs@gmail.com">
+            <div className="mt-8 flex flex-col sm:flex-row gap-4">
+              <Button variant="hero" size="xl" asChild className="w-full sm:w-auto">
+                <a href="mailto:mantradevs@gmail.com" className="flex items-center gap-2">
                   <Mail className="h-4 w-4" />
                   <span>mantradevs@gmail.com</span>
                   <ArrowRight className="h-4 w-4" />
                 </a>
               </Button>
             </div>
+
           </div>
         </div>
         <footer className="mt-16 flex flex-wrap items-center justify-between gap-4 text-sm text-muted-foreground">

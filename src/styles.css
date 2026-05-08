@@ -212,7 +212,12 @@
     10% { opacity: 1; }
     100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
   }
+  @keyframes breathe {
+    0%, 100% { border-color: var(--primary / 20%); box-shadow: var(--shadow-elegant); }
+    50% { border-color: var(--primary / 50%); box-shadow: var(--shadow-glow); }
+  }
   .animate-float { animation: float-y 6s ease-in-out infinite; }
+
   .animate-pulse-glow { animation: pulse-glow 2.4s ease-in-out infinite; }
   .animate-glitch { animation: glitch 2.6s infinite; }
   .shimmer-text {
