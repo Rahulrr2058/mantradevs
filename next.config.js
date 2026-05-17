@@ -1,20 +1,20 @@
 /** @type {import('next').NextConfig} */
-// basePath is only needed for GitHub Pages (production build).
-// In development (npm run dev) we omit it so the site loads at localhost:3000/
-const isProd = process.env.NODE_ENV === 'production';
-const BASE_PATH = isProd ? '/mantradevs' : '';
+// basePath is only needed when deploying to GitHub Pages (subpath /mantradevs).
+// In root-domain deployments (Vercel, Netlify, custom domains) we omit it so that assets resolve from '/'.
+const isGitHubPages = process.env.GH_PAGES === 'true' || process.env.GITHUB_ACTIONS === 'true';
+const BASE_PATH = isGitHubPages ? '/mantradevs' : '';
 
 const nextConfig = {
   reactStrictMode: true,
   transpilePackages: ['lucide-react'],
 
-  // === Required for GitHub Pages ===
+  // === Required for Static Export ===
   output: 'export',           // Enables static export
   images: {
     unoptimized: true,        // Required when using static export
   },
-  trailingSlash: true,        // Recommended for GitHub Pages
-  ...(isProd && { basePath: BASE_PATH }),
+  trailingSlash: true,        // Recommended for static routing
+  ...(BASE_PATH && { basePath: BASE_PATH }),
 
   // Expose basePath so client-side code can prefix public asset URLs
   env: {
