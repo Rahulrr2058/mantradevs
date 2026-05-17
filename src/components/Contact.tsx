@@ -53,7 +53,7 @@ export function Contact() {
         const errorText = await response.text();
         if (response.status === 400 && errorText.includes('public key')) {
           setStatus('success');
-          setStatusMessage('EmailJS is almost ready! Please set your Public Key inside the `.env.local` file or directly in the code.');
+          // setStatusMessage('EmailJS is almost ready! Please set your Public Key inside the `.env.local` file or directly in the code.');
         } else {
           setStatusMessage(`Failed to send email: ${errorText || response.statusText}`);
         }
@@ -91,7 +91,7 @@ export function Contact() {
                 <ContactInfo 
                   icon={<Mail className="w-6 h-6 text-indigo-500 dark:text-indigo-400" />} 
                   label="Email Us" 
-                  value="mantravdes@gmail.com"
+                  value="mantravdevs@gmail.com"
                   color="indigo"
                 />
                 <ContactInfo 
@@ -103,7 +103,7 @@ export function Contact() {
                 <ContactInfo 
                   icon={<MapPin className="w-6 h-6 text-pink-500 dark:text-pink-400" />} 
                   label="Studio" 
-                  value="Bharatpur, Nepal"
+                  value="Chitwan, Nepal"
                   color="pink"
                 />
               </div>
@@ -182,7 +182,7 @@ export function Contact() {
                       <AlertCircle className="w-5 h-5 text-red-555 mt-0.5 flex-shrink-0" />
                     )}
                     <div className="text-sm font-medium leading-relaxed">
-                      {status === 'sending' ? 'Sending message securely via EmailJS...' : statusMessage}
+                      {status === 'sending' ? 'Sending your  message securely to Mantra Devs!' : statusMessage}
                     </div>
                   </div>
                 )}
