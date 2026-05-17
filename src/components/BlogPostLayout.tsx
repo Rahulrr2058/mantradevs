@@ -30,7 +30,7 @@ function TableOfContents({ sections }: { sections: BlogPost["sections"] }) {
     <nav className="p-6 rounded-2xl dark:bg-white/3 bg-white border dark:border-white/8 border-slate-200/80 backdrop-blur-xl shadow-lg transition-colors duration-500">
       <div className="flex items-center gap-2 mb-4">
         <BookOpen className="w-4 h-4 text-indigo-500 dark:text-indigo-400" />
-        <span className="text-xs font-black uppercase tracking-widest text-indigo-500 dark:text-indigo-400">Contents</span>
+        <span className="text-xs font-black uppercase tracking-widest text-indigo-500 dark:text-indigo-400">Contents </span>
       </div>
       <ol className="space-y-2">
         {sections.map((s, i) => (
