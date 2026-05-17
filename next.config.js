@@ -1,8 +1,7 @@
 /** @type {import('next').NextConfig} */
-// basePath is only needed when deploying to GitHub Pages (subpath /mantradevs).
-// In root-domain deployments (Vercel, Netlify, custom domains) we omit it so that assets resolve from '/'.
-const isGitHubPages = process.env.GH_PAGES === 'true' || process.env.GITHUB_ACTIONS === 'true';
-const BASE_PATH = isGitHubPages ? '/mantradevs' : '';
+// We omit basePath because your production deployment is served from your custom domain (mantradevs.com).
+// Custom domains resolve directly from the root '/', so no subpath prefix is needed.
+const BASE_PATH = '';
 
 const nextConfig = {
   reactStrictMode: true,
