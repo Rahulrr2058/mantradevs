@@ -72,8 +72,8 @@ export default function Dashboard() {
   // Check Supabase configurations and initialize
   useEffect(() => {
     const isSupabaseConfigured = 
-      process.env.NEXT_PUBLIC_SUPABASE_URL && 
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+      (process.env.NEXT_PUBLIC_SUPABASE_URL || "https://kflsxekakwgfqugvxvqj.supabase.co") && 
+      (process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "sb_publishable_ye_NLbIZmZ6c7YsInHQUiw_la1G-nZf");
 
     if (isSupabaseConfigured) {
       setIsSandbox(false);
