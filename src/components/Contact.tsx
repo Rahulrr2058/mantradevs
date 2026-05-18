@@ -29,7 +29,7 @@ export function Contact() {
       const payload = {
         service_id: 'service_3k9h2kt',
         template_id: 'template_8fu2hl5',
-        user_id: 'R9fTExfQ_k0gLkiUv',
+        user_id: 'tbI_vrjGzkQYOQr81',
         template_params: {
           from_name: formData.name,
           from_email: formData.email,
@@ -53,7 +53,7 @@ export function Contact() {
         const errorText = await response.text();
         if (response.status === 400 && errorText.includes('public key')) {
           setStatus('success');
-          // setStatusMessage('EmailJS is almost ready! Please set your Public Key inside the `.env.local` file or directly in the code.');
+          setStatusMessage('EmailJS is almost ready! Please set your Public Key inside the `.env.local` file or directly in the code.');
         } else {
           setStatusMessage(`Failed to send email: ${errorText || response.statusText}`);
         }
