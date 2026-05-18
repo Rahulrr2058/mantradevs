@@ -439,7 +439,7 @@ Make sure to open your dashboard to view the logs and record call notes.`,
         <div className="pt-32 max-w-7xl mx-auto px-4">
           
           {/* Active Mode Banner */}
-          <div className="mb-8 flex flex-wrap items-center justify-between gap-4 p-4 rounded-3xl dark:bg-white/3 bg-white border dark:border-white/10 border-slate-200 backdrop-blur-2xl">
+          {/* <div className="mb-8 flex flex-wrap items-center justify-between gap-4 p-4 rounded-3xl dark:bg-white/3 bg-white border dark:border-white/10 border-slate-200 backdrop-blur-2xl">
             <div className="flex items-center gap-3">
               <div className={`w-3 h-3 rounded-full animate-pulse ${isSandbox ? "bg-amber-500" : "bg-emerald-500"}`} />
               <span className="text-xs font-black uppercase tracking-widest text-slate-500 dark:text-indigo-200/50">
@@ -465,7 +465,7 @@ Make sure to open your dashboard to view the logs and record call notes.`,
                 </button>
               </div>
             )}
-          </div>
+          </div> */}
 
           {/* --- AUTHENTICATION SHIELD (IF NO SESSION ACTIVE) --- */}
           {!session ? (
@@ -534,29 +534,9 @@ Make sure to open your dashboard to view the logs and record call notes.`,
                   </button>
                 </form>
 
-                {!isSandbox && (
-                  <div className="mt-6 text-center">
-                    <button
-                      onClick={() => setAuthMode(authMode === "signin" ? "signup" : "signin")}
-                      className="text-xs font-bold text-indigo-500 dark:text-indigo-400 hover:underline cursor-pointer"
-                    >
-                      {authMode === "signin" ? "Need a manager account? Register here" : "Already have an account? Sign In"}
-                    </button>
-                  </div>
-                )}
+                
 
-                {isSandbox && (
-                  <div className="mt-8 border-t dark:border-white/5 border-slate-200 pt-6">
-                    <div className="p-4 rounded-2xl bg-indigo-500/5 border border-indigo-500/10 text-[11px] leading-relaxed dark:text-indigo-200/50 text-slate-500">
-                      <strong className="dark:text-indigo-400 text-indigo-600 block mb-1">ℹ️ Database Offline Notice</strong>
-                      To unlock secure persistence, database schemas, and trigger automations, add your credentials inside `.env.local`:
-                      <code className="block mt-2 p-1.5 rounded dark:bg-black bg-slate-100 font-mono text-[9px] select-all overflow-x-auto">
-                        NEXT_PUBLIC_SUPABASE_URL=your_project_url<br/>
-                        NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
-                      </code>
-                    </div>
-                  </div>
-                )}
+             
               </div>
             </div>
           ) : (

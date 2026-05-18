@@ -133,7 +133,7 @@ export function Nav() {
               {item}
             </a>
           ))}
-          <button 
+          {/* <button 
             onClick={() => {
               setMobileMenuOpen(false);
               window.location.href = '/dashboard';
@@ -141,7 +141,7 @@ export function Nav() {
             className="w-full py-5 bg-indigo-600 text-white font-black uppercase tracking-widest rounded-2xl shadow-lg cursor-pointer"
           >
             Launch App
-          </button>
+          </button> */}
         </div>
       </div>
     </nav>
