@@ -54,6 +54,21 @@ export default function Dashboard() {
   const [submitLoading, setSubmitLoading] = useState(false);
   const [notification, setNotification] = useState<{ type: "success" | "error"; message: string } | null>(null);
 
+  // Force light mode strictly for the CRM dashboard route
+  useEffect(() => {
+    const hadDarkClass = document.documentElement.classList.contains("dark");
+    
+    // Remove the dark class to force light theme on the dashboard page
+    document.documentElement.classList.remove("dark");
+
+    return () => {
+      // Restore dark theme when navigating away if it was previously active
+      if (hadDarkClass) {
+        document.documentElement.classList.add("dark");
+      }
+    };
+  }, []);
+
   // Check Supabase configurations and initialize
   useEffect(() => {
     const isSupabaseConfigured = 
@@ -63,7 +78,8 @@ export default function Dashboard() {
     if (isSupabaseConfigured) {
       setIsSandbox(false);
       // Fetch session from supabase auth
-      supabase.auth.getSession().then(({ data: { session } }) => {
+      supabase.auth.getSession().then((res:any) => {
+        const session = res.data?.session;
         setSession(session);
         if (session) {
           fetchClinicsCloud(session.user.id);
@@ -73,7 +89,7 @@ export default function Dashboard() {
       });
 
       // Listen for auth state changes
-      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event:any, session: any) => {
         setSession(session);
         if (session) {
           fetchClinicsCloud(session.user.id);
@@ -322,9 +338,9 @@ Make sure to open your dashboard to view the logs and record call notes.`,
     }
 
     // Trigger email reminder if reminder time is newly added/modified
-    if (finalClinic.reminder_time) {
-      await triggerEmailJSAlert(finalClinic.name, finalClinic.reminder_time);
-    }
+    // if (finalClinic.reminder_time) {
+    //   await triggerEmailJSAlert(finalClinic.name, finalClinic.reminder_time);
+    // }
 
     if (isSandbox) {
       let updated: ClinicRecord[];
@@ -362,7 +378,7 @@ Make sure to open your dashboard to view the logs and record call notes.`,
               called: finalClinic.called,
               status: finalClinic.status,
               notes: finalClinic.notes,
-              reminder_time: finalClinic.reminder_time,
+              reminder_time: finalClinic.reminder_time || "2026-05-19T09:30",
               user_id: session.user.id
             });
           if (error) throw error;
@@ -417,7 +433,7 @@ Make sure to open your dashboard to view the logs and record call notes.`,
       </Head>
 
       <div className="min-h-screen dark:bg-[#030014] bg-gradient-to-b from-[#faf9fe] via-[#f5f2ff] to-[#faf9fe] transition-colors duration-500 text-slate-800 dark:text-slate-100 pb-20">
-        <Nav />
+        {/* <Nav /> */}
 
         {/* --- DYNAMIC HEADER METADATA SPACE --- */}
         <div className="pt-32 max-w-7xl mx-auto px-4">
@@ -773,7 +789,7 @@ Make sure to open your dashboard to view the logs and record call notes.`,
               </div>
 
               {/* Database Schema Guide */}
-              <div className="p-8 rounded-[36px] dark:bg-indigo-950/10 bg-indigo-500/5 border dark:border-indigo-500/10 border-indigo-500/20 backdrop-blur-3xl">
+              {/* <div className="p-8 rounded-[36px] dark:bg-indigo-950/10 bg-indigo-500/5 border dark:border-indigo-500/10 border-indigo-500/20 backdrop-blur-3xl">
                 <div className="flex items-start gap-4">
                   <Database className="w-6 h-6 text-indigo-500 mt-1 flex-shrink-0" />
                   <div className="space-y-4">
@@ -819,7 +835,7 @@ create policy "Users can manage their own clinics"
                     </div>
                   </div>
                 </div>
-              </div>
+              </div> */}
             </div>
           )}
         </div>

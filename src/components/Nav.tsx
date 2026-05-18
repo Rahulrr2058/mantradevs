@@ -6,6 +6,7 @@ export function Nav() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  const [isDashboard, setIsDashboard] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -16,6 +17,9 @@ export function Nav() {
     // Read the initial theme from classList
     const isDark = document.documentElement.classList.contains('dark');
     setTheme(isDark ? 'dark' : 'light');
+    
+    // Detect dashboard route
+    setIsDashboard(window.location.pathname === '/dashboard');
     
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -54,7 +58,7 @@ export function Nav() {
               MANTRA DEVS
             </span>
           </div>
-
+ 
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-8">
             {['Services', 'Work', 'Blog', 'Contact'].map((item) => (
@@ -67,17 +71,19 @@ export function Nav() {
               </a>
             ))}
             
-            <button 
-              onClick={toggleTheme}
-              className="p-2 rounded-full dark:bg-white/5 bg-slate-100 hover:bg-slate-200 dark:hover:bg-white/10 dark:text-indigo-200 text-slate-700 transition-all border dark:border-white/10 border-slate-200 shadow-md group cursor-pointer"
-              aria-label="Toggle Theme"
-            >
-              {theme === 'dark' ? (
-                <Sun className="w-4 h-4 text-amber-400 group-hover:rotate-45 transition-transform duration-500" />
-              ) : (
-                <Moon className="w-4 h-4 text-indigo-600 group-hover:-rotate-12 transition-transform duration-500" />
-              )}
-            </button>
+            {!isDashboard && (
+              <button 
+                onClick={toggleTheme}
+                className="p-2 rounded-full dark:bg-white/5 bg-slate-100 hover:bg-slate-200 dark:hover:bg-white/10 dark:text-indigo-200 text-slate-700 transition-all border dark:border-white/10 border-slate-200 shadow-md group cursor-pointer"
+                aria-label="Toggle Theme"
+              >
+                {theme === 'dark' ? (
+                  <Sun className="w-4 h-4 text-amber-400 group-hover:rotate-45 transition-transform duration-500" />
+                ) : (
+                  <Moon className="w-4 h-4 text-indigo-600 group-hover:-rotate-12 transition-transform duration-500" />
+                )}
+              </button>
+            )}
 
             <button 
               onClick={() => window.location.href = '/dashboard'}
@@ -89,17 +95,19 @@ export function Nav() {
 
           {/* Mobile Actions Container */}
           <div className="flex items-center gap-4 md:hidden">
-            <button 
-              onClick={toggleTheme}
-              className="p-2.5 rounded-full dark:bg-white/5 bg-slate-100 dark:text-indigo-200 text-slate-700 transition-all border dark:border-white/10 border-slate-200 shadow-sm cursor-pointer"
-              aria-label="Toggle Theme"
-            >
-              {theme === 'dark' ? (
-                <Sun className="w-4 h-4 text-amber-400" />
-              ) : (
-                <Moon className="w-4 h-4 text-indigo-600" />
-              )}
-            </button>
+            {!isDashboard && (
+              <button 
+                onClick={toggleTheme}
+                className="p-2.5 rounded-full dark:bg-white/5 bg-slate-100 dark:text-indigo-200 text-slate-700 transition-all border dark:border-white/10 border-slate-200 shadow-sm cursor-pointer"
+                aria-label="Toggle Theme"
+              >
+                {theme === 'dark' ? (
+                  <Sun className="w-4 h-4 text-amber-400" />
+                ) : (
+                  <Moon className="w-4 h-4 text-indigo-600" />
+                )}
+              </button>
+            )}
             <button
               className="text-slate-800 dark:text-white"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
