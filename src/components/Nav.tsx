@@ -79,7 +79,10 @@ export function Nav() {
               )}
             </button>
 
-            <button className="px-6 py-2 bg-indigo-600 text-white text-xs font-black uppercase tracking-widest rounded-full hover:bg-indigo-500 transition-all shadow-[0_0_15px_rgba(79,70,229,0.3)] cursor-pointer">
+            <button 
+              onClick={() => window.location.href = '/dashboard'}
+              className="px-6 py-2 bg-indigo-600 text-white text-xs font-black uppercase tracking-widest rounded-full hover:bg-indigo-500 transition-all shadow-[0_0_15px_rgba(79,70,229,0.3)] cursor-pointer"
+            >
               Launch App
             </button>
           </div>
@@ -112,17 +115,23 @@ export function Nav() {
         mobileMenuOpen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'
       }`}>
         <div className="flex flex-col gap-8">
-          {['Services', 'Work', 'Contact'].map((item) => (
+          {['Services', 'Work', 'Blog', 'Contact'].map((item) => (
             <a 
               key={item}
-              href={`/#${item.toLowerCase()}`}
+              href={item === 'Blog' ? '/blog' : `/#${item.toLowerCase()}`}
               className="text-4xl font-black dark:text-white text-slate-900 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors tracking-tighter"
               onClick={() => setMobileMenuOpen(false)}
             >
               {item}
             </a>
           ))}
-          <button className="w-full py-5 bg-indigo-600 text-white font-black uppercase tracking-widest rounded-2xl shadow-lg cursor-pointer">
+          <button 
+            onClick={() => {
+              setMobileMenuOpen(false);
+              window.location.href = '/dashboard';
+            }}
+            className="w-full py-5 bg-indigo-600 text-white font-black uppercase tracking-widest rounded-2xl shadow-lg cursor-pointer"
+          >
             Launch App
           </button>
         </div>
