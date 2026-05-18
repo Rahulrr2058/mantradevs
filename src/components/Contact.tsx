@@ -119,7 +119,7 @@ export function Contact() {
                     </label>
                     <input 
                       type="text" 
-                      placeholder="e.g. John Doe"
+                      placeholder="e.g. Bepen Saud"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       className="w-full dark:bg-[#0a071e] bg-slate-50/70 hover:bg-white focus:bg-white border dark:border-white/20 border-slate-200 dark:hover:border-indigo-400/50 hover:border-indigo-500/30 rounded-2xl px-6 py-4 dark:text-white text-slate-800 placeholder:text-slate-400 dark:placeholder:text-white/50 focus:outline-none dark:focus:border-cyan-400 focus:border-indigo-500 dark:focus:bg-[#030014] focus:ring-4 dark:focus:ring-cyan-400/20 focus:ring-indigo-500/10 transition-all text-base font-normal tracking-wide shadow-inner duration-200"
@@ -132,7 +132,7 @@ export function Contact() {
                     </label>
                     <input 
                       type="email" 
-                      placeholder="e.g. john@example.com"
+                      placeholder="e.g. bepen@example.com"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       className="w-full dark:bg-[#0a071e] bg-slate-50/70 hover:bg-white focus:bg-white border dark:border-white/20 border-slate-200 dark:hover:border-indigo-400/50 hover:border-indigo-500/30 rounded-2xl px-6 py-4 dark:text-white text-slate-800 placeholder:text-slate-400 dark:placeholder:text-white/50 focus:outline-none dark:focus:border-cyan-400 focus:border-indigo-500 dark:focus:bg-[#030014] focus:ring-4 dark:focus:ring-cyan-400/20 focus:ring-indigo-500/10 transition-all text-base font-normal tracking-wide shadow-inner duration-200"
