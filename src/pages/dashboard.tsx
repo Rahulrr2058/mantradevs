@@ -30,6 +30,53 @@ interface ClinicRecord {
   user_id?: string;
 }
 
+// Helper functions for Nepal Time Zone (Asia/Kathmandu: UTC +05:45)
+const toNepalLocalDateTimeInput = (dateInput: string | Date | null | undefined) => {
+  if (!dateInput) return "";
+  const d = new Date(dateInput);
+  if (isNaN(d.getTime())) return "";
+  
+  // Shift by 5 hours and 45 minutes to get local Nepal time
+  const nepalTimeMs = d.getTime() + (5 * 60 + 45) * 60 * 1000;
+  const nepalDate = new Date(nepalTimeMs);
+  
+  const year = nepalDate.getUTCFullYear();
+  const month = String(nepalDate.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(nepalDate.getUTCDate()).padStart(2, "0");
+  const hour = String(nepalDate.getUTCHours()).padStart(2, "0");
+  const minute = String(nepalDate.getUTCMinutes()).padStart(2, "0");
+  
+  return `${year}-${month}-${day}T${hour}:${minute}`;
+};
+
+const toNepalISOString = (localDateTimeStr: string) => {
+  if (!localDateTimeStr) return null;
+  if (localDateTimeStr.includes("+") || localDateTimeStr.includes("Z")) return localDateTimeStr;
+  return `${localDateTimeStr}:00+05:45`;
+};
+
+const formatToNepalTime = (dateInput: string | Date | null | undefined) => {
+  if (!dateInput) return "";
+  const d = new Date(dateInput);
+  if (isNaN(d.getTime())) return "";
+
+  // Shift to Nepal Time
+  const nepalTimeMs = d.getTime() + (5 * 60 + 45) * 60 * 1000;
+  const nepalDate = new Date(nepalTimeMs);
+
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const year = nepalDate.getUTCFullYear();
+  const month = months[nepalDate.getUTCMonth()];
+  const day = nepalDate.getUTCDate();
+  let hour = nepalDate.getUTCHours();
+  const minute = String(nepalDate.getUTCMinutes()).padStart(2, "0");
+  const ampm = hour >= 12 ? "PM" : "AM";
+  hour = hour % 12;
+  hour = hour ? hour : 12; // the hour '0' should be '12'
+
+  return `${month} ${day}, ${year} ${hour}:${minute} ${ampm}`;
+};
+
 export default function Dashboard() {
   const [isSandbox, setIsSandbox] = useState(true);
   const [session, setSession] = useState<any>(null);
@@ -53,6 +100,115 @@ export default function Dashboard() {
   const [activeClinic, setActiveClinic] = useState<Partial<ClinicRecord> | null>(null);
   const [submitLoading, setSubmitLoading] = useState(false);
   const [notification, setNotification] = useState<{ type: "success" | "error"; message: string } | null>(null);
+
+  // WhatsApp States
+  const [personalWhatsApp, setPersonalWhatsApp] = useState("");
+  const [callMeBotApiKey, setCallMeBotApiKey] = useState("");
+  
+  // Sent Reminders tracking to avoid duplicates
+  const [sentReminders, setSentReminders] = useState<string[]>([]);
+  
+  // Active pop-up reminder alert
+  const [activeAlert, setActiveAlert] = useState<ClinicRecord | null>(null);
+
+  // Load WhatsApp and sent reminders from localStorage on load
+  useEffect(() => {
+    const storedPhone = localStorage.getItem("crm_personal_whatsapp");
+    if (storedPhone) {
+      setPersonalWhatsApp(storedPhone);
+    } else {
+      // Default to user's personal number
+      setPersonalWhatsApp("9779866115243");
+      localStorage.setItem("crm_personal_whatsapp", "9779866115243");
+    }
+    
+    const storedApiKey = localStorage.getItem("crm_callmebot_apikey");
+    if (storedApiKey) {
+      setCallMeBotApiKey(storedApiKey);
+    }
+
+    const storedSent = localStorage.getItem("crm_sent_reminders");
+    if (storedSent) {
+      setSentReminders(JSON.parse(storedSent));
+    }
+  }, []);
+
+  const handleWhatsAppChange = (val: string) => {
+    setPersonalWhatsApp(val);
+    localStorage.setItem("crm_personal_whatsapp", val);
+  };
+
+  const handleCallMeBotApiKeyChange = (val: string) => {
+    setCallMeBotApiKey(val);
+    localStorage.setItem("crm_callmebot_apikey", val);
+  };
+
+  // WhatsApp Reminder message builder
+  const getWhatsAppLink = (clinic: ClinicRecord | Partial<ClinicRecord>) => {
+    if (!personalWhatsApp) return "";
+    const cleanPhone = personalWhatsApp.replace(/[^0-9]/g, ""); // Clean up non-numeric characters for wa.me
+    const timeStr = clinic.reminder_time ? formatToNepalTime(clinic.reminder_time) : "Not set";
+    const text = `⏰ *Mantra CRM - Callback Reminder* ⏰\n\n🏢 *Clinic:* ${clinic.name}\n👤 *Contact:* ${clinic.contact_person || "Not specified"}\n📞 *Phone:* ${clinic.phone || "Not specified"}\n📅 *Scheduled Time:* ${timeStr} (Nepal Time)\n📝 *Remarks/Notes:* ${clinic.notes || "No notes recorded"}\n\n_Generated from Mantra CRM Board._`;
+    return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(text)}`;
+  };
+
+  // Automated silent WhatsApp sender using CallMeBot API
+  const sendAutomatedWhatsApp = async (clinic: ClinicRecord) => {
+    if (!personalWhatsApp) return;
+    const cleanPhone = personalWhatsApp.startsWith("+") ? personalWhatsApp : `+${personalWhatsApp.replace(/[^0-9]/g, "")}`;
+    const apiKey = localStorage.getItem("crm_callmebot_apikey") || callMeBotApiKey;
+    if (!apiKey) {
+      console.warn("CallMeBot API key is not set. Skipping automated background WhatsApp message.");
+      return;
+    }
+
+    const timeStr = clinic.reminder_time ? formatToNepalTime(clinic.reminder_time) : "Not set";
+    const text = `⏰ *Mantra CRM - Callback Reminder* ⏰\n\n🏢 *Clinic:* ${clinic.name}\n👤 *Contact:* ${clinic.contact_person || "Not specified"}\n📞 *Phone:* ${clinic.phone || "Not specified"}\n📅 *Scheduled Time:* ${timeStr} (Nepal Time)\n📝 *Remarks/Notes:* ${clinic.notes || "No notes recorded"}\n\n_Generated from Mantra CRM Board._`;
+
+    try {
+      const url = `https://api.callmebot.com/whatsapp.php?phone=${encodeURIComponent(cleanPhone)}&text=${encodeURIComponent(text)}&apikey=${encodeURIComponent(apiKey)}`;
+      await fetch(url, { mode: "no-cors" });
+      console.log("CallMeBot WhatsApp automated alert dispatched to", cleanPhone);
+    } catch (e) {
+      console.error("CallMeBot HTTP fetch failed:", e);
+    }
+  };
+
+  // Background Reminder Scheduler
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (!clinics || clinics.length === 0) return;
+      
+      const now = Date.now();
+      let updatedSent = [...sentReminders];
+      let hasUpdates = false;
+
+      clinics.forEach(clinic => {
+        if (!clinic.reminder_time) return;
+
+        const remTime = new Date(clinic.reminder_time).getTime();
+        // Check if reminder is due/past due (within last 24 hours to avoid historic spam)
+        const isDue = remTime <= now && now - remTime < 24 * 60 * 60 * 1000;
+        const key = `${clinic.id}_${clinic.reminder_time}`;
+
+        if (isDue && !sentReminders.includes(key)) {
+          // Trigger alert!
+          triggerEmailJSAlert(clinic.name, clinic.reminder_time);
+          sendAutomatedWhatsApp(clinic); // Dispatches automated background message to user's phone!
+          setActiveAlert(clinic);
+          updatedSent.push(key);
+          hasUpdates = true;
+        }
+      });
+
+      if (hasUpdates) {
+        setSentReminders(updatedSent);
+        localStorage.setItem("crm_sent_reminders", JSON.stringify(updatedSent));
+      }
+    }, 15000); // Check every 15 seconds
+
+    return () => clearInterval(interval);
+  }, [clinics, sentReminders, personalWhatsApp, callMeBotApiKey]);
 
   // Force light mode strictly for the CRM dashboard route
   useEffect(() => {
@@ -297,7 +453,7 @@ export default function Dashboard() {
           message: `This is a callback alert reminder for your studio queue.
           
 Clinic: ${clinicName}
-Scheduled Callback Time: ${new Date(time).toLocaleString()}
+Scheduled Callback Time: ${formatToNepalTime(time)} (Nepal Time)
           
 Make sure to open your dashboard to view the logs and record call notes.`,
           to_name: session?.user?.email || "Studio Manager"
@@ -327,20 +483,21 @@ Make sure to open your dashboard to view the logs and record call notes.`,
     const isEditing = !!activeClinic.id;
     let finalClinic: ClinicRecord;
 
+    const reminderTimeValue = activeClinic.reminder_time ? toNepalISOString(activeClinic.reminder_time) : null;
+
     if (isEditing) {
-      finalClinic = activeClinic as ClinicRecord;
+      finalClinic = {
+        ...activeClinic,
+        reminder_time: reminderTimeValue
+      } as ClinicRecord;
     } else {
       finalClinic = {
         ...activeClinic,
         id: Math.random().toString(36).substring(2, 9),
-        created_at: new Date().toISOString()
+        created_at: new Date().toISOString(),
+        reminder_time: reminderTimeValue
       } as ClinicRecord;
     }
-
-    // Trigger email reminder if reminder time is newly added/modified
-    // if (finalClinic.reminder_time) {
-    //   await triggerEmailJSAlert(finalClinic.name, finalClinic.reminder_time);
-    // }
 
     if (isSandbox) {
       let updated: ClinicRecord[];
@@ -378,7 +535,7 @@ Make sure to open your dashboard to view the logs and record call notes.`,
               called: finalClinic.called,
               status: finalClinic.status,
               notes: finalClinic.notes,
-              reminder_time: finalClinic.reminder_time || "2026-05-19T09:30",
+              reminder_time: finalClinic.reminder_time,
               user_id: session.user.id
             });
           if (error) throw error;
@@ -636,6 +793,39 @@ Make sure to open your dashboard to view the logs and record call notes.`,
                         ))}
                       </select>
                     </div>
+
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-slate-500 uppercase">My Number:</span>
+                      <input 
+                        type="text"
+                        placeholder="e.g. 9779866115243"
+                        value={personalWhatsApp}
+                        onChange={(e) => handleWhatsAppChange(e.target.value)}
+                        className="px-3 py-1.5 w-36 rounded-xl dark:bg-[#0a071e] bg-slate-50 border dark:border-white/15 border-slate-200 dark:text-white text-slate-800 text-xs font-semibold placeholder:text-slate-400"
+                        title="Your personal WhatsApp number with country code"
+                      />
+                    </div>
+
+                    <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+                      <span className="text-xs font-bold text-emerald-500 uppercase">Auto Key:</span>
+                      <input 
+                        type="password"
+                        placeholder="CallMeBot Key"
+                        value={callMeBotApiKey}
+                        onChange={(e) => handleCallMeBotApiKeyChange(e.target.value)}
+                        className="px-3 py-1.5 w-32 rounded-xl dark:bg-[#0a071e] bg-slate-50 border dark:border-white/15 border-slate-200 dark:text-white text-slate-800 text-xs font-semibold placeholder:text-slate-400"
+                        title="Paste your free CallMeBot key here for automatic alerts"
+                      />
+                      <a 
+                        href="https://wa.me/34623786449?text=I%20allow%20callmebot%20to%20send%20messages" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="px-2 py-1 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500 text-[10px] font-black border border-emerald-500/20 transition-all flex items-center gap-1 cursor-pointer shrink-0"
+                        title="Click to get free API key from CallMeBot"
+                      >
+                        Get Key
+                      </a>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -728,12 +918,7 @@ Make sure to open your dashboard to view the logs and record call notes.`,
                                 {clinic.reminder_time ? (
                                   <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl dark:bg-amber-500/5 bg-amber-500/10 border border-amber-500/20 text-xs font-bold text-amber-600 dark:text-amber-500">
                                     <Clock className="w-3.5 h-3.5 text-amber-500" />
-                                    {new Date(clinic.reminder_time).toLocaleString(undefined, {
-                                      month: "short",
-                                      day: "numeric",
-                                      hour: "2-digit",
-                                      minute: "2-digit"
-                                    })}
+                                    {formatToNepalTime(clinic.reminder_time)}
                                   </span>
                                 ) : (
                                   <span className="text-xs dark:text-indigo-200/20 text-slate-400">None Scheduled</span>
@@ -743,6 +928,19 @@ Make sure to open your dashboard to view the logs and record call notes.`,
                               {/* Row edit/delete CTA */}
                               <td className="py-5 px-6 text-center">
                                 <div className="flex items-center justify-center gap-2">
+                                  {clinic.reminder_time && personalWhatsApp && (
+                                    <a
+                                      href={getWhatsAppLink(clinic)}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="p-2 rounded-xl dark:bg-white/5 bg-slate-100 hover:bg-emerald-500 hover:text-white dark:hover:bg-emerald-500/20 dark:hover:text-emerald-400 text-emerald-600 transition-all cursor-pointer"
+                                      title="Send WhatsApp Reminder"
+                                    >
+                                      <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                                        <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.713-1.457L0 24zm6.59-4.846c1.6.95 3.197 1.451 4.821 1.452 5.486 0 9.95-4.46 9.954-9.94.002-2.657-1.03-5.153-2.902-7.03C16.65 1.757 14.15 .716 11.5 0.716 6.012.716 1.548 5.18 1.544 10.66c-.001 1.765.463 3.49 1.345 5.021l-.993 3.626 3.71-.973zm12.383-7.234c-.33-.164-1.953-.964-2.251-1.074-.3-.11-.518-.165-.737.163-.218.33-.846 1.074-1.037 1.293-.19.219-.382.246-.712.082-.33-.164-1.393-.513-2.653-1.637-.98-.874-1.64-1.953-1.832-2.28-.192-.327-.02-.504.145-.668.148-.148.33-.382.495-.573.165-.19.219-.327.328-.546.11-.219.055-.41-.027-.573-.082-.164-.737-1.776-1.01-2.43-.266-.642-.533-.556-.738-.567-.19-.009-.41-.01-.629-.01-.218 0-.573.082-.873.41-.3.327-1.147 1.12-1.147 2.733 0 1.612 1.174 3.17 1.338 3.388.164.218 2.31 3.528 5.597 4.945.781.338 1.392.54 1.868.692.785.25 1.5.214 2.065.13.629-.094 1.954-.8 2.228-1.57.274-.77.274-1.43.19-1.57-.082-.14-.304-.218-.634-.382z"/>
+                                      </svg>
+                                    </a>
+                                  )}
                                   <button
                                     onClick={() => handleOpenDrawer(clinic)}
                                     className="p-2 rounded-xl dark:bg-white/5 bg-slate-100 hover:bg-indigo-500 hover:text-white dark:hover:bg-indigo-500/20 dark:hover:text-indigo-400 text-slate-600 transition-all cursor-pointer"
@@ -971,9 +1169,9 @@ create policy "Users can manage their own clinics"
                     </p>
                     <input
                       type="datetime-local"
-                      value={activeClinic.reminder_time || ""}
+                      value={toNepalLocalDateTimeInput(activeClinic.reminder_time)}
                       onChange={(e) => setActiveClinic({ ...activeClinic, reminder_time: e.target.value })}
-                      className="w-full dark:bg-[#0a071e]/75 bg-white border dark:border-amber-500/20 border-amber-500/30 rounded-xl px-4 py-3 dark:text-white text-slate-800 focus:outline-none dark:focus:border-amber-500 focus:border-amber-500 transition-colors text-sm font-bold text-amber-600"
+                      className="w-full dark:bg-[#0a071e]/75 bg-white border dark:border-amber-500/20 border-amber-500/30 rounded-xl px-4 py-3 dark:text-white text-slate-808 focus:outline-none dark:focus:border-amber-500 focus:border-amber-500 transition-colors text-sm font-bold text-amber-600"
                     />
                   </div>
 
@@ -993,6 +1191,79 @@ create policy "Users can manage their own clinics"
                   Mantra Devs Studio Calling Console
                 </p>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* --- DYNAMIC CALL-BACK REMINDER POPUP ALERT --- */}
+        {activeAlert && (
+          <div className="fixed bottom-6 right-6 z-50 max-w-sm w-full dark:bg-[#110c36]/90 bg-white/95 border-2 border-amber-500 rounded-3xl p-6 shadow-[0_20px_50px_rgba(245,158,11,0.3)] backdrop-blur-xl transition-all duration-300">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 bg-amber-500/10 rounded-2xl flex items-center justify-center border border-amber-500/30 text-amber-500 flex-shrink-0 animate-pulse">
+                <Clock className="w-6 h-6" />
+              </div>
+              <div className="flex-1 space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-amber-500">
+                    Callback Alert Due
+                  </span>
+                  <button 
+                    onClick={() => setActiveAlert(null)}
+                    className="text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg font-bold leading-none cursor-pointer"
+                  >
+                    ×
+                  </button>
+                </div>
+                <h4 className="font-extrabold text-base dark:text-white text-slate-900 leading-snug">
+                  {activeAlert.name}
+                </h4>
+                {activeAlert.contact_person && (
+                  <p className="text-xs font-semibold dark:text-indigo-200/60 text-slate-600">
+                    Contact: {activeAlert.contact_person}
+                  </p>
+                )}
+                {activeAlert.phone && (
+                  <p className="text-xs dark:text-indigo-200/40 text-slate-500">
+                    Phone: {activeAlert.phone}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="mt-5 grid grid-cols-2 gap-3">
+              <button
+                onClick={() => {
+                  handleOpenDrawer(activeAlert);
+                  setActiveAlert(null);
+                }}
+                className="py-2.5 px-4 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-extrabold uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                <Edit3 className="w-3.5 h-3.5" /> Edit Record
+              </button>
+              
+              {personalWhatsApp ? (
+                <a
+                  href={getWhatsAppLink(activeAlert)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setActiveAlert(null)}
+                  className="py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-extrabold uppercase tracking-wider rounded-xl transition-all shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                    <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.713-1.457L0 24zm6.59-4.846c1.6.95 3.197 1.451 4.821 1.452 5.486 0 9.95-4.46 9.954-9.94.002-2.657-1.03-5.153-2.902-7.03C16.65 1.757 14.15 .716 11.5 0.716 6.012.716 1.548 5.18 1.544 10.66c-.001 1.765.463 3.49 1.345 5.021l-.993 3.626 3.71-.973zm12.383-7.234c-.33-.164-1.953-.964-2.251-1.074-.3-.11-.518-.165-.737.163-.218.33-.846 1.074-1.037 1.293-.19.219-.382.246-.712.082-.33-.164-1.393-.513-2.653-1.637-.98-.874-1.64-1.953-1.832-2.28-.192-.327-.02-.504.145-.668.148-.148.33-.382.495-.573.165-.19.219-.327.328-.546.11-.219.055-.41-.027-.573-.082-.164-.737-1.776-1.01-2.43-.266-.642-.533-.556-.738-.567-.19-.009-.41-.01-.629-.01-.218 0-.573.082-.873.41-.3.327-1.147 1.12-1.147 2.733 0 1.612 1.174 3.17 1.338 3.388.164.218 2.31 3.528 5.597 4.945.781.338 1.392.54 1.868.692.785.25 1.5.214 2.065.13.629-.094 1.954-.8 2.228-1.57.274-.77.274-1.43.19-1.57-.082-.14-.304-.218-.634-.382z"/>
+                  </svg>
+                  WhatsApp
+                </a>
+              ) : (
+                <button
+                  onClick={() => {
+                    alert("Please set your personal WhatsApp number in the dashboard filters section to enable direct WhatsApp alerts!");
+                  }}
+                  className="py-2.5 px-4 bg-slate-200 dark:bg-white/5 hover:bg-slate-300 dark:hover:bg-white/10 text-slate-500 dark:text-slate-300 text-xs font-extrabold uppercase tracking-wider rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  No WhatsApp
+                </button>
+              )}
             </div>
           </div>
         )}

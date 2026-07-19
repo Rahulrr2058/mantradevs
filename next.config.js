@@ -1,3 +1,19 @@
+import { spawn } from 'child_process';
+import path from 'path';
+
+// Automatically spawn the background WhatsApp cron worker during local development
+if (process.env.NODE_ENV !== 'production') {
+  console.log("⚙️ Starting Mantra CRM Background WhatsApp Cron Worker...");
+  const workerProcess = spawn('node', [path.resolve('scripts/whatsapp-worker.js')], {
+    stdio: 'inherit',
+    shell: false
+  });
+  
+  process.on('exit', () => {
+    workerProcess.kill();
+  });
+}
+
 /** @type {import('next').NextConfig} */
 // We omit basePath because your production deployment is served from your custom domain (mantradevs.com).
 // Custom domains resolve directly from the root '/', so no subpath prefix is needed.
