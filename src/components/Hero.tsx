@@ -119,7 +119,7 @@ export function Hero() {
         </h1>
         
         <p className="max-w-2xl text-lg md:text-xl dark:text-indigo-200/60 text-slate-600 mb-10 leading-relaxed font-medium transition-colors duration-500">
-           The next dimension of digital craft. We build software that breathes, scales, and transcends the ordinary.
+           Welcome to the next dimension of digital craft. Mantra Devs is a premium software engineering studio and the best IT company in Nepal, crafting custom web, mobile, and intelligent AI solutions that breathe, scale, and transcend the ordinary.
         </p>
 
         <div className="flex flex-col sm:flex-row gap-4">
